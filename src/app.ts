@@ -33,6 +33,7 @@ app.use(
   })
 );
 
+
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -44,7 +45,6 @@ const limiter = rateLimit({
 });
 
 app.use("/api/contact", limiter, contactRoutes);
-
 app.get("/", (_req, res) => res.json({ status: "ok" }));
 
 export default app;
