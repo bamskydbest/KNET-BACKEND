@@ -6,14 +6,39 @@ import contactRoutes from "./routes/contact.js";
 
 const app = express();
 
-app.use(helmet());
+
+const allowedOrigins = [
+  "https://k-netgh.netlify.app",
+  "http://localhost:5173",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST"],
+  })
+);
+
+
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false,
+  })
+);
+
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: "*" }));
 
-// rate limiter for contact endpoint
+
 const limiter = rateLimit({
-  windowMs: 60 * 1000, // 1 min
+  windowMs: 60 * 1000, // 1 minute
   max: 10,
   message: { error: "Too many requests, please try again later." },
 });
