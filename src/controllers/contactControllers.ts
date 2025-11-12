@@ -33,11 +33,14 @@ export const submitContact = async (req: Request, res: Response) => {
 
     await contact.save();
 
-    try {
-      await sendContactEmail({
-        to: process.env.CONTACT_EMAIL || process.env.EMAIL_FROM,
-        subject: `New contact from ${value.name}`,
-        text: `
+    // Respond immediately
+    res.status(201).json({ message: "Contact received" });
+
+    // Send email asynchronously
+    sendContactEmail({
+      to: process.env.CONTACT_EMAIL || process.env.EMAIL_FROM,
+      subject: `New contact from ${value.name}`,
+      text: `
 Name: ${value.name}
 Company: ${value.company || "N/A"}
 Email: ${value.email}
@@ -46,24 +49,23 @@ Country: ${value.country || "N/A"}
 
 Message:
 ${value.comment}
-        `,
-        html: `
-          <h2>New Contact Submission</h2>
-          <p><strong>Name:</strong> ${value.name}</p>
-          <p><strong>Company:</strong> ${value.company || "N/A"}</p>
-          <p><strong>Email:</strong> ${value.email}</p>
-          <p><strong>Phone:</strong> ${value.phone || "N/A"}</p>
-          <p><strong>Country:</strong> ${value.country || "N/A"}</p>
-          <p><strong>Message:</strong><br>${value.comment}</p>
-        `,
-      });
-    } catch (err) {
-      console.error("Email sending failed:", err);
-    }
+      `,
+      html: `
+        <h2>New Contact Submission</h2>
+        <p><strong>Name:</strong> ${value.name}</p>
+        <p><strong>Company:</strong> ${value.company || "N/A"}</p>
+        <p><strong>Email:</strong> ${value.email}</p>
+        <p><strong>Phone:</strong> ${value.phone || "N/A"}</p>
+        <p><strong>Country:</strong> ${value.country || "N/A"}</p>
+        <p><strong>Message:</strong><br>${value.comment}</p>
+      `,
+    }).catch((err) => console.error("Email sending failed:", err));
 
-    return res.status(201).json({ message: "Contact received" });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: "Server error" });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Server error" });
+    }
   }
 };
+
