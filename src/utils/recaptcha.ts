@@ -9,20 +9,27 @@ export const verifyRecaptcha = async (token: string, remoteip?: string) => {
   params.append("response", token);
   if (remoteip) params.append("remoteip", remoteip);
 
-  const res = await axios.post(
-    "https://www.google.com/recaptcha/api/siteverify",
-    params.toString(),
-    {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    }
-  );
+  try {
+    const res = await axios.post(
+      "https://www.google.com/recaptcha/api/siteverify",
+      params.toString(),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
+    );
 
-  return res.data as {
-    success: boolean;
-    score?: number;
-    action?: string;
-    challenge_ts?: string;
-    hostname?: string;
-    "error-codes"?: string[];
-  };
+    console.log("✅ reCAPTCHA verification result:", res.data);
+
+    return res.data as {
+      success: boolean;
+      score?: number;
+      action?: string;
+      challenge_ts?: string;
+      hostname?: string;
+      "error-codes"?: string[];
+    };
+  } catch (error) {
+    console.error("❌ Error verifying reCAPTCHA:", error);
+    throw error;
+  }
 };
