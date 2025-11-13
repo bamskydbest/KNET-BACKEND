@@ -25,6 +25,7 @@ app.use(helmet({
 }));
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
+app.set('trust proxy', 1); // trust first proxy
 const limiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 10,

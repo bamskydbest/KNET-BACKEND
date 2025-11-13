@@ -36,6 +36,8 @@ app.use(
 
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
+app.set('trust proxy', 1); // trust first proxy
+
 
 
 const limiter = rateLimit({
